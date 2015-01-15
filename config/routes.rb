@@ -1,11 +1,10 @@
 Fedena::Application.routes.draw do
 
-  resources :grading_levels do
-    get :show
-  end
+  resources :grading_levels
 
   resources :ranking_levels do
     collection do
+      get :load_ranking_levels
       get :create_ranking_level
       post :create_ranking_level
       get :edit_ranking_level
@@ -21,12 +20,33 @@ Fedena::Application.routes.draw do
     end
   end
 
-  resources :class_designations
-  #map.resources :exam_reports, :collection => {:course_reports_index=>[:get,:post], :batch_reports_index=>[:get,:post]}
+  resources :class_designations, only: :index do
+    get :load_class_designations, on: :collection
+  end
 
-  resources :class_timings
+  resources :exam_reports, only: :index do
+    collection do
+      get :archived_exam_wise_report
+      post :archived_exam_wise_report
+      get :batch_reports_index
+      post :batch_reports_index
+      get :list_inactivated_batches
+      post :final_archived_report_type
+      post :archived_batches_exam_report
+    end
+  end
 
-  resources :subjects
+  resources :class_timings, except: :show do
+    collection do
+      get :show
+    end
+  end
+
+  resources :subjects do
+    collection do
+      get :show
+    end
+  end
 
   resources :attendances do
     collection do
@@ -37,7 +57,20 @@ Fedena::Application.routes.draw do
 
   resources :employee_attendances
 
-  resources :attendance_reports
+  resources :employee_attendance do
+    collection do
+      get :add_leave_types
+      get :report
+      get :manual_reset
+    end
+  end
+
+  resources :attendance_reports do
+    collection do
+      get :advance_search
+      get :mode
+    end
+  end
 
   resources :cce_exam_categories
 
@@ -137,10 +170,16 @@ Fedena::Application.routes.draw do
     end
   end
 
+  resources :batch_transfers, only: :index do
+    collection do
+      get :update_batch
+    end
+  end
+
   ##feed 'courses/manage_course', :controller => 'courses' ,:action=>'manage_course'
   ##feed 'courses/manage_batches', :controller => 'courses' ,:action=>'manage_batches'
 
-  resources :courses, :has_many => :batches do
+  resources :courses do
     collection do
       get :grouped_batches
       post :grouped_batches
@@ -158,6 +197,9 @@ Fedena::Application.routes.draw do
       post :edit_subject_amount
       get :destroy_subject_amount
       post :destroy_subject_amount
+      get :manage_course
+      get :manage_batches
+      get :update_batch
     end
   end
 
@@ -183,17 +225,28 @@ Fedena::Application.routes.draw do
   #  end
 
   resources :timetables do
-    resources :timetable_entries
+    resources :timetable_entries do
+      collection do
+        get :update_multiple_timetable_entries2
+        get :new_entry
+      end
+    end
   end
 
   resources :user do
     collection do
       post :login
       get :forgot_password
+      post :forgot_password
       get :dashboard
       get :all
       get :search_user_ajax
       get :list_user
+      get :logout
+    end
+    member do
+      get :profile
+      get :change_password
     end
   end
 
@@ -203,34 +256,174 @@ Fedena::Application.routes.draw do
       get :add
     end
   end
+
   resources :reminder, only: :index
+
   resources :student, only: :index do
     collection do
       get :admission1
+      post :admission1
       get :view_all
       get :advanced_search
       get :search_ajax
       get :list_students_by_course
+      get :categories
+      post :categories
+      get :add_additional_details
+      post :add_additional_details
+    end
+    member do
+      get :profile
     end
   end
+
+  resources :calendar, only: :index
+  resources :event, only: :index
+
   resources :exam, only: :index do
     collection do
       get :settings
       get :create_exam
       get :generate_reports
       get :report_center
-    end
-  end
-  resources :timetable, only: :index
-  resources :student_attendance, only: :index
-  resources :configuration, only: :index
-  resources :employee, only: :index do
-    collection do
-      get :hr
+      get :previous_batch_exams
+      get :update_batch
+      get :list_inactive_batches
+      get :generate_previous_reports
+      get :list_batch_groups
+      get :select_inactive_batches
+      get :exam_wise_report
+      get :subject_wise_report
+      get :grouped_exam_report
+      get :subject_rank
+      get :batch_rank
+      get :course_rank
+      get :student_school_rank
+      get :attendance_rank
+      get :ranking_level_report
+      get :transcript
+      get :combined_report
+      get :list_exam_types
+      get :select_batch_group
+      post :generated_report
+      get :list_subjects
+      post :generated_report2
+      get :final_report_type
+      post :generated_report4
+      get :list_batch_subjects
+      post :student_subject_rank
+      post :student_batch_rank
+      get :batch_groups
+      post :student_course_rank
+      post :student_attendance_rank
+      get :select_mode
+      post :student_ranking_level_report
+      get :student_transcript
+      post :student_transcript_exam
+      get :load_levels
+      post :student_combined_report
     end
   end
 
-  resources :finance, only: :index
+  resources :timetable, only: :index do
+    collection do
+      get :work_allotment
+      get :new_timetable
+      post :new_timetable
+      get :edit_master
+      get :view
+      get :teachers_timetable
+      get :timetable
+      get :update_timetable_view
+      get :update_teacher_tt
+    end
+  end
+
+
+  resources :student_attendance, only: :index do
+    collection do
+      get :advance_search
+    end
+  end
+
+  resources :configuration, only: :index do
+    collection do
+      get :settings
+      post :settings
+    end
+  end
+
+  resources :employee, only: :index do
+    collection do
+      get :hr
+      get :subject_assignment
+      get :update_subjects
+      get :select_department
+      get :settings
+      get :employee_management
+      get :employee_attendance
+      get :payslip
+      get :search
+      get :department_payslip
+      get :admission1
+      get :advanced_search
+      get :view_all
+    end
+  end
+  resources :sms, only: :index do
+    collection do
+      get :settings
+      post :settings
+      get :update_general_sms_settings
+      post :update_general_sms_settings
+      get :students
+      get :batches
+      get :employees
+      get :departments
+      get :all
+      get :show_sms_messages
+      get :list_students
+      post :batches
+      get :list_employees
+    end
+  end
+
+  get 'scheduled_jobs/:job_object/:job_type', to: "scheduled_jobs#index" , as: :scheduled_task
+
+  resources :finance, only: :index do
+    collection do
+      get :fees_index
+      get :categories
+      get :transactions
+      get :donation
+      get :automatic_transactions
+      get :payslip_index
+      get :asset_liability
+      get :fee_collection
+      get :fees_submission_batch
+      get :fees_student_search
+      get :expense_create
+      get :expense_list
+      get :income_create
+      get :income_list
+      get :monthly_report
+      get :compare_report
+      get :donors
+      get :view_monthly_payslip
+      get :asset
+      get :view_asset
+      get :liability
+      get :view_liability
+      get :master_fees
+      get :fees_defaulters
+      get :fees_student_structure_search
+    end
+  end
+  resources :weekday, only: [:index, :create] do
+    collection do
+      get :week
+    end
+  end
 
   root 'user#login' # :controller => 'user', :action => 'login'
 

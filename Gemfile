@@ -4,7 +4,8 @@ source 'http://rubygems.org'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.1.4'
 # Use sqlite3 as the database for Active Record
-gem 'mysql2'
+#gem 'mysql2'
+gem 'pg'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.3'
 # Use Uglifier as compressor for JavaScript assets
@@ -53,4 +54,8 @@ gem 'pry', group: [:development]
 # gem 'debugger', group: [:development, :test]
 gem 'will_paginate'
 gem 'prototype-rails'
+gem 'delayed_job_active_record'
+gem 'jquery-ui-rails'
+gem 'ckeditor'
+#gem 'calendar_date_select', git: 'http://github.com/paneq/calendar_date_select.git'
 # gem 'has_and_belongs_to_many_with_deferred_save', '~> 0.2.0'
